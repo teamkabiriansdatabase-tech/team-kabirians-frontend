@@ -1,0 +1,198 @@
+/* ==========================================================================
+   TEAM KABIRIANS — TEAM HEAD PORTAL UNIVERSAL RESPONSIVE ENGINE
+   Strictly Scoped to .portal-wrapper
+   Mobile (320px, 375px, 390px, 430px) • Tablet (768px, 1024px) • Desktop (1280px, 1440px+)
+   ========================================================================== */
+
+/* 1. Global Viewport Safety & Horizontal Overflow Prevention */
+.portal-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow-x: clip;
+}
+
+.portal-wrapper *,
+.portal-wrapper *::before,
+.portal-wrapper *::after {
+  box-sizing: border-box;
+}
+
+/* 2. Desktop Layout (≥ 1024px) — Anchored Sidebar & Correct Main Viewport Offset */
+@media screen and (min-width: 1024px) {
+  /* Sidebar permanently fixed to the left */
+  .portal-wrapper aside {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 16rem !important; /* 256px */
+    height: 100vh !important;
+    z-index: 40 !important;
+    transform: none !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+  }
+
+  .portal-wrapper aside nav {
+    overflow-y: auto !important;
+    flex: 1 1 auto !important;
+    scrollbar-width: none !important;
+  }
+  .portal-wrapper aside nav::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  /* Main content offset so it never overlaps or renders under the sidebar */
+  .portal-wrapper div.lg\:pl-64,
+  .portal-wrapper .lg\:pl-64 {
+    padding-left: 16rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Topbar fixed width within main content area */
+  .portal-wrapper header {
+    width: 100% !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 30 !important;
+  }
+}
+
+/* 3. Mobile & Tablet Layout (< 1024px) — Drawer & Full Width Viewport */
+@media screen and (max-width: 1023px) {
+  /* Off-canvas mobile drawer */
+  .portal-wrapper aside {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 16rem !important;
+    max-width: 85vw !important;
+    height: 100vh !important;
+    z-index: 50 !important;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    box-shadow: none !important;
+  }
+
+  .portal-wrapper aside.translate-x-0 {
+    transform: translateX(0) !important;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.75) !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  /* Main content takes full screen width on mobile/tablet */
+  .portal-wrapper div.lg\:pl-64,
+  .portal-wrapper .lg\:pl-64 {
+    padding-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .portal-wrapper header {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+}
+
+/* 4. Responsive Card Grids (Events, Tournaments, Registrations) */
+@media screen and (min-width: 640px) and (max-width: 1023px) {
+  .portal-wrapper .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3,
+  .portal-wrapper .grid.grid-cols-1.md\:grid-cols-3,
+  .portal-wrapper .grid.grid-cols-1.sm\:grid-cols-2.xl\:grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1.25rem !important;
+  }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1279px) {
+  .portal-wrapper .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3,
+  .portal-wrapper .grid.grid-cols-1.md\:grid-cols-3,
+  .portal-wrapper .grid.grid-cols-1.sm\:grid-cols-2.xl\:grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1.5rem !important;
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  .portal-wrapper .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3,
+  .portal-wrapper .grid.grid-cols-1.md\:grid-cols-3,
+  .portal-wrapper .grid.grid-cols-1.sm\:grid-cols-2.xl\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 1.5rem !important;
+  }
+}
+
+/* 5. Metrics & Stat Cards */
+@media screen and (max-width: 639px) {
+  .portal-wrapper .grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-4,
+  .portal-wrapper .grid.grid-cols-2.sm\:grid-cols-4,
+  .portal-wrapper div[class*="grid-cols-1"][class*="sm:grid-cols-2"][class*="lg:grid-cols-4"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.625rem !important;
+  }
+}
+
+@media screen and (max-width: 374px) {
+  .portal-wrapper .grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-4,
+  .portal-wrapper .grid.grid-cols-2.sm\:grid-cols-4,
+  .portal-wrapper div[class*="grid-cols-1"][class*="sm:grid-cols-2"][class*="lg:grid-cols-4"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* 6. Data Tables — Horizontal Touch Scrolling */
+.portal-wrapper div:has(> table),
+.portal-wrapper .overflow-x-auto {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.portal-wrapper table {
+  min-width: 600px;
+}
+
+/* 7. Dialogs, Modals & Slips Safety */
+.portal-wrapper .fixed.inset-0 > div[class*="bg-white"] {
+  max-width: min(95vw, 48rem) !important;
+  max-height: 88vh !important;
+  overflow-y: auto !important;
+}
+
+/* 8. Official Accreditation Pass Print Styles */
+@media print {
+  body {
+    background: white !important;
+  }
+  .portal-wrapper aside,
+  .portal-wrapper header,
+  .portal-wrapper button,
+  .print\:hidden {
+    display: none !important;
+  }
+  .portal-wrapper .lg\:pl-64,
+  .portal-wrapper div.lg\:pl-64 {
+    padding-left: 0 !important;
+  }
+  #official-print-slip {
+    display: block !important;
+    position: static !important;
+    box-shadow: none !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+  }
+}

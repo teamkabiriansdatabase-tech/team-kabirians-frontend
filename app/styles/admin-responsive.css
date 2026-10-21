@@ -1,0 +1,229 @@
+/* ==========================================================================
+   TEAM KABIRIANS — ADMIN PORTAL UNIVERSAL RESPONSIVE ENGINE
+   Strictly Scoped to .admin-portal-wrapper
+   Mobile (320px, 375px, 390px, 430px) • Tablet (768px, 1024px) • Desktop (1280px, 1440px+)
+   ========================================================================== */
+
+/* 1. Global Viewport Safety & Layout Isolation */
+.admin-portal-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow-x: clip;
+}
+
+.admin-portal-wrapper *,
+.admin-portal-wrapper *::before,
+.admin-portal-wrapper *::after {
+  box-sizing: border-box;
+}
+
+/* Hide Next.js dev toast/badge on admin portal */
+nextjs-portal,
+[data-nextjs-toast],
+[data-nextjs-toast-wrapper],
+#__next-build-watcher {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* 2. Desktop Layout (≥ 1024px) — Anchored Sidebar & Correct Main Viewport Offset */
+@media screen and (min-width: 1024px) {
+  /* Sidebar permanently fixed to the left */
+  .admin-portal-wrapper aside {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 16rem !important; /* 256px */
+    height: 100vh !important;
+    z-index: 40 !important;
+    transform: none !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+  }
+
+  .admin-portal-wrapper aside nav {
+    overflow-y: auto !important;
+    flex: 1 1 auto !important;
+    scrollbar-width: none !important;
+  }
+  .admin-portal-wrapper aside nav::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  /* Main content offset so it never overlaps or renders under the sidebar */
+  .admin-portal-wrapper div.lg\:pl-64,
+  .admin-portal-wrapper .lg\:pl-64 {
+    padding-left: 16rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Topbar fixed width within main content area */
+  .admin-portal-wrapper header {
+    width: 100% !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 30 !important;
+  }
+}
+
+/* 3. Mobile & Tablet Layout (< 1024px) — Drawer & Full Width Viewport */
+@media screen and (max-width: 1023px) {
+  /* Off-canvas mobile drawer */
+  .admin-portal-wrapper aside {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 16rem !important;
+    max-width: 85vw !important;
+    height: 100vh !important;
+    z-index: 50 !important;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    box-shadow: none !important;
+  }
+
+  .admin-portal-wrapper aside.translate-x-0 {
+    transform: translateX(0) !important;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.75) !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  /* Main content takes full screen width */
+  .admin-portal-wrapper div.lg\:pl-64,
+  .admin-portal-wrapper .lg\:pl-64 {
+    padding-left: 0 !important;
+    width: 100% !important;
+  }
+
+  .admin-portal-wrapper main.p-8,
+  .admin-portal-wrapper main.p-6 {
+    padding: 1rem !important;
+  }
+
+  .admin-portal-wrapper header {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+/* 4. Event Cards Grid: Consistent widths, spacing, alignment, and heights */
+/* Mobile (< 640px): 1 card per row */
+/* Tablet (640px to 1023px): 2 cards per row */
+/* Desktop (1024px to 1279px): 2 cards per row */
+/* Large Desktop (1280px+): 3 cards per row */
+@media screen and (min-width: 640px) and (max-width: 1023px) {
+  .admin-portal-wrapper .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3,
+  .admin-portal-wrapper .grid.grid-cols-1.md\:grid-cols-2.xl\:grid-cols-3,
+  .admin-portal-wrapper .grid.grid-cols-1.sm\:grid-cols-2.xl\:grid-cols-3,
+  .admin-portal-wrapper .grid.grid-cols-1.md\:grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1.25rem !important;
+  }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1279px) {
+  .admin-portal-wrapper .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3,
+  .admin-portal-wrapper .grid.grid-cols-1.md\:grid-cols-2.xl\:grid-cols-3,
+  .admin-portal-wrapper .grid.grid-cols-1.sm\:grid-cols-2.xl\:grid-cols-3,
+  .admin-portal-wrapper .grid.grid-cols-1.md\:grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1.5rem !important;
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  .admin-portal-wrapper .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3,
+  .admin-portal-wrapper .grid.grid-cols-1.md\:grid-cols-2.xl\:grid-cols-3,
+  .admin-portal-wrapper .grid.grid-cols-1.sm\:grid-cols-2.xl\:grid-cols-3,
+  .admin-portal-wrapper .grid.grid-cols-1.md\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 1.5rem !important;
+  }
+}
+
+/* Ensure each event card has consistent height, spacing, alignment */
+.admin-portal-wrapper div.bg-white.rounded-3xl.border.overflow-hidden {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+}
+
+.admin-portal-wrapper div.bg-white.rounded-3xl.border.overflow-hidden > div:first-child {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.admin-portal-wrapper div.bg-white.rounded-3xl.border.overflow-hidden > div:last-child {
+  margin-top: auto !important;
+}
+
+/* 5. KPI & Summary Metrics Grid */
+@media screen and (max-width: 639px) {
+  .admin-portal-wrapper .grid.grid-cols-2.sm\:grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.625rem !important;
+  }
+}
+
+@media screen and (max-width: 374px) {
+  .admin-portal-wrapper .grid.grid-cols-2.sm\:grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* 6. Responsive Data Tables */
+.admin-portal-wrapper div:has(> table),
+.admin-portal-wrapper .overflow-x-auto {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  max-width: 100% !important;
+}
+
+.admin-portal-wrapper table {
+  min-width: 600px;
+}
+
+/* 7. Modals & Dialogs Safety */
+.admin-portal-wrapper .fixed.inset-0 > div[class*="bg-white"] {
+  max-width: min(95vw, 48rem) !important;
+  max-height: 88vh !important;
+  overflow-y: auto !important;
+}
+
+/* 8. Official Stamped Passes & Printing */
+@media print {
+  body {
+    background: white !important;
+  }
+  .admin-portal-wrapper aside,
+  .admin-portal-wrapper header,
+  .admin-portal-wrapper button,
+  .print\:hidden {
+    display: none !important;
+  }
+  .admin-portal-wrapper div.lg\:pl-64,
+  .admin-portal-wrapper .lg\:pl-64 {
+    padding-left: 0 !important;
+  }
+  #official-print-slip {
+    display: block !important;
+    position: static !important;
+    box-shadow: none !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+  }
+}

@@ -1,69 +1,100 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { ArrowRight, Trophy, Video, FileCheck } from 'lucide-react';
+import Navbar from '@/components/Navbar';
+import FreeClassModal from '@/components/FreeClassModal';
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900">
+      {/* 1. Free Trial Class Modal */}
+      <FreeClassModal />
+
+      {/* 2. Navigation Header */}
+      <Navbar />
+
+      {/* 3. Hero Section */}
+      <main className="flex-1">
+        <section className="relative overflow-hidden bg-white py-20 lg:py-28 border-b border-slate-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl space-y-6">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-50 text-red-600 text-xs font-bold tracking-wide uppercase border border-red-100">
+                Official Competition Platform
+              </div>
+
+              <h1 className="text-4xl sm:text-6xl font-black text-[#1E3A8A] tracking-tight leading-tight">
+                Empowering Teams. <br />
+                <span className="text-[#DC2626]">Recognizing Excellence.</span>
+              </h1>
+
+              <p className="text-lg text-slate-600 max-w-2xl leading-relaxed">
+                Register your team, select competition categories, upload verified payment proofs, 
+                and participate in both online video challenges and offline events seamlessly.
+              </p>
+
+              <div className="flex flex-wrap gap-4 pt-4">
+                <Link
+                  href="/events"
+                  prefetch={false}
+                  className="inline-flex items-center px-6 py-3.5 rounded-lg bg-[#1E3A8A] text-white font-semibold hover:bg-blue-900 transition-all shadow-md gap-2"
+                >
+                  Browse Current Events <ArrowRight className="w-4 h-4" />
+                </Link>
+
+                <Link
+                  href="/portal/dashboard"
+                  prefetch={false}
+                  className="inline-flex items-center px-6 py-3.5 rounded-lg bg-white border-2 border-[#DC2626] text-[#DC2626] font-semibold hover:bg-red-50 transition-all cursor-pointer"
+                >
+                  Team Head Portal
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 4. Feature Highlights */}
+        <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-6 rounded-xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-lg bg-blue-50 text-[#1E3A8A] flex items-center justify-center mb-4 font-bold">
+                <Trophy className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 mb-2">Category Selection</h3>
+              <p className="text-sm text-slate-600">
+                Admin-curated competitive categories with transparent base pricing and automated deadline adjustments.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-lg bg-red-50 text-[#DC2626] flex items-center justify-center mb-4 font-bold">
+                <Video className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 mb-2">Online Video Submissions</h3>
+              <p className="text-sm text-slate-600">
+                Approved teams get instant access to submit competition performances directly to Cloudinary storage.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-lg bg-slate-100 text-slate-800 flex items-center justify-center mb-4 font-bold">
+                <FileCheck className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 mb-2">Offline Registration Slips</h3>
+              <p className="text-sm text-slate-600">
+                Offline competitors receive verification passes and downloadable entry documentation instantly.
+              </p>
+            </div>
+          </div>
+        </section>
       </main>
+
+      {/* 5. Footer */}
+      <footer className="bg-[#0F172A] text-white border-t border-slate-800 py-10 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-400">
+          <p>© {new Date().getFullYear()} Team Kabirians. All rights reserved.</p>
+          <p className="mt-1 text-xs">Event Management & Competition Portal System</p>
+        </div>
+      </footer>
     </div>
   );
 }
