@@ -1411,11 +1411,18 @@ export default function AdminDashboardPage() {
                         </div>
 
                         <div className="p-6 pt-0 mt-auto">
-                          <button type="button" className="w-full py-3.5 bg-[#DC2626] hover:bg-red-700 text-white rounded-2xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 shadow-sm group-hover:shadow-md cursor-pointer">
-                            <span>View Event Stats &amp; Teams</span>
-                            <ArrowRight className="w-4 h-4 shrink-0" />
-                          </button>
-                        </div>
+  <button
+    type="button"
+    onClick={(e) => {
+      e.stopPropagation();
+      setSelectedEventStats(ev);
+    }}
+    className="w-full py-3.5 bg-[#DC2626] hover:bg-red-700 text-white rounded-2xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 shadow-sm group-hover:shadow-md cursor-pointer"
+  >
+    <span>View Event Stats &amp; Teams</span>
+    <ArrowRight className="w-4 h-4 shrink-0" />
+  </button>
+</div>
                       </div>
                     );
                   })}
