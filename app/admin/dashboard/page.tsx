@@ -3212,6 +3212,111 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
+    {/* MODAL: EVENT STATS, STATUS CHANGE & EDIT */}
+{selectedEventStats && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in overflow-y-auto"
+    onClick={() => setSelectedEventStats(null)}
+  >
+    <div
+      className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative border border-slate-100 space-y-5 my-8"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="flex justify-between items-center pb-3 border-b">
+        <div>
+          <span className="text-[10px] font-black uppercase text-red-600 tracking-wider block">
+            Tournament Management &amp; Status Control
+          </span>
+          <h3 className="text-xl font-black text-slate-900">{selectedEventStats.title}</h3>
+        </div>
+        <button
+          type="button"
+          onClick={() => setSelectedEventStats(null)}
+          className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl cursor-pointer"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      <div className="space-y-4 text-xs font-semibold">
+        {/* Status Changer */}
+        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+          <label className="block text-slate-700 uppercase font-black">Tournament Status (Live / Upcoming / Closed / Ended)</label>
+          <div className="flex items-center gap-2 flex-wrap">
+            {['upcoming', 'live', 'closed', 'ended'].map((st) => {
+              const currentEvStatus = selectedEventStats.status || 'upcoming';
+              const isSelected = currentEvStatus === st;
+              return (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await api.put(`/events/${selectedEventStats._id}/status`, { status: st });
+                      setSelectedEventStats({ ...selectedEventStats, status: st });
+                      fetchAdminData();
+                      showNotice(`Tournament status successfully changed to ${st.toUpperCase()}!`, 'success');
+                    } catch (err: any) {
+                      showNotice('Status update karne mein masla hua.', 'error');
+                    }
+                  }}
+                  className={`px-4 py-2 rounded-xl text-xs font-black uppercase transition cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#E63946] text-white shadow-md'
+                      : 'bg-white border text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  {st}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[11px] text-slate-400 mt-1">
+            Status change karne par Team Head portal aur User view par events ki availability foran update ho jayegi.
+          </p>
+        </div>
+
+        {/* Quick Details View */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+            <span className="text-slate-400 block uppercase text-[10px]">Event Type</span>
+            <span className="font-black text-slate-900 uppercase mt-0.5 block">{selectedEventStats.eventType}</span>
+          </div>
+          <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+            <span className="text-slate-400 block uppercase text-[10px]">Tournament Date</span>
+            <span className="font-black text-slate-900 mt-0.5 block">{new Date(selectedEventStats.eventDate).toLocaleDateString()}</span>
+          </div>
+          <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+            <span className="text-slate-400 block uppercase text-[10px]">Standard Deadline</span>
+            <span className="font-black text-slate-900 mt-0.5 block">{new Date(selectedEventStats.standardDeadline || selectedEventStats.registrationDeadline).toLocaleDateString()}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end items-center gap-3 pt-3 border-t">
+        <button
+          type="button"
+          onClick={() => {
+            const evToEdit = selectedEventStats;
+            setSelectedEventStats(null);
+            handleOpenEditEvent(evToEdit);
+          }}
+          className="px-5 py-2.5 bg-[#1E3A8A] hover:bg-blue-900 text-white rounded-xl font-bold text-xs cursor-pointer transition shadow-xs"
+        >
+          Open Full Edit Form
+        </button>
+        <button
+          type="button"
+          onClick={() => setSelectedEventStats(null)}
+          className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs cursor-pointer transition"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       {/* MODAL: PAYMENT VERIFICATION & SLIPS WITH EDITABLE AMOUNT */}
       {selectedPaymentProof && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-xs p-4 sm:py-8 flex justify-center items-start animate-in fade-in" onClick={() => setSelectedPaymentProof(null)}>
