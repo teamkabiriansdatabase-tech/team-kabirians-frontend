@@ -3212,7 +3212,7 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-    {/* MODAL: EVENT STATS, STATUS CHANGE & EDIT */}
+   {/* MODAL: EVENT STATS, STATUS CHANGE, EDIT & DELETE */}
 {selectedEventStats && (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in overflow-y-auto"
@@ -3293,25 +3293,46 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <div className="flex justify-end items-center gap-3 pt-3 border-t">
+      <div className="flex justify-between items-center pt-3 border-t">
+        {/* Delete Tournament Button */}
         <button
           type="button"
           onClick={() => {
-            const evToEdit = selectedEventStats;
+            const evId = selectedEventStats._id;
+            const evTitle = selectedEventStats.title;
             setSelectedEventStats(null);
-            handleOpenEditEvent(evToEdit);
+            setInlineConfirmation({
+              actionType: 'delete_event',
+              id: evId,
+              title: evTitle,
+            });
           }}
-          className="px-5 py-2.5 bg-[#1E3A8A] hover:bg-blue-900 text-white rounded-xl font-bold text-xs cursor-pointer transition shadow-xs"
+          className="px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-bold text-xs cursor-pointer transition flex items-center gap-1.5 border border-red-200"
         >
-          Open Full Edit Form
+          <Trash2 className="w-3.5 h-3.5" />
+          <span>Delete Event</span>
         </button>
-        <button
-          type="button"
-          onClick={() => setSelectedEventStats(null)}
-          className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs cursor-pointer transition"
-        >
-          Close
-        </button>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              const evToEdit = selectedEventStats;
+              setSelectedEventStats(null);
+              handleOpenEditEvent(evToEdit);
+            }}
+            className="px-5 py-2.5 bg-[#1E3A8A] hover:bg-blue-900 text-white rounded-xl font-bold text-xs cursor-pointer transition shadow-xs"
+          >
+            Open Full Edit Form
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedEventStats(null)}
+            className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs cursor-pointer transition"
+          >
+            Close
+          </button>
+        </div>
       </div>
     </div>
   </div>
