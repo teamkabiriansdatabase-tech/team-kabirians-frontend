@@ -4,19 +4,24 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 
 interface FloatingWhatsAppProps {
-  phoneNumber?: string; // Format: bina '+' ke, country code ke sath (e.g. 923001234567)
+  phoneNumber?: string;
   supportMessage?: string;
 }
 
 export default function FloatingWhatsApp({
-  phoneNumber = '923001234567', // <-- Apna official number yahan likhein
-  supportMessage = 'Assalam-o-Alaikum! Mujhe Team Head Portal ke hawale se guidance chahiyay.'
+  phoneNumber = '03166216408',
+  supportMessage = 'Assalam-o-Alaikum! I need guidance regarding Team Kabirians events and admissions.',
 }: FloatingWhatsAppProps) {
   const [showTooltip, setShowTooltip] = useState(true);
 
   const handleOpenWhatsApp = () => {
+    // Sanitize phone number so it works with wa.me (e.g. 0316... -> 92316...)
+    let cleanNumber = phoneNumber.replace(/[^0-9]/g, '');
+    if (cleanNumber.startsWith('0')) {
+      cleanNumber = '92' + cleanNumber.slice(1);
+    }
     const encodedText = encodeURIComponent(supportMessage);
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedText}`;
+    const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodedText}`;
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
@@ -29,7 +34,7 @@ export default function FloatingWhatsApp({
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
-          <span>Need help? Chat with Admin</span>
+          <span>Need help? Chat on WhatsApp</span>
           <button
             type="button"
             onClick={(e) => {

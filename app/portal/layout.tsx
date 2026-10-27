@@ -54,7 +54,10 @@ export default function PortalLayout({
       {children}
 
       {/* Gliding WhatsApp Button across all portal views */}
-      <FloatingWhatsApp phoneNumber="923001234567" />
+      <FloatingWhatsApp
+        phoneNumber="03166216408"
+        supportMessage="Assalamu alaikum, I need assistance regarding the Team Head Portal."
+      />
     </div>
   );
 }

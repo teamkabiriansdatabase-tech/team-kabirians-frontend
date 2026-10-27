@@ -1,5 +1,4 @@
 import Navbar from '@/components/Navbar';
-import FreeClassModal from '@/components/FreeClassModal';
 
 export default function PublicLayout({
   children,
@@ -8,9 +7,6 @@ export default function PublicLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col bg-brand-gray-bg text-slate-900">
-      {/* Automatic Free Class Modal trigger */}
-      <FreeClassModal />
-
       {/* Global Public Navbar */}
       <Navbar />
 

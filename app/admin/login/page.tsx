@@ -51,13 +51,13 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F6F9] flex items-center justify-center p-4 sm:p-6 font-sans antialiased text-slate-800">
+    <div className="admin-login-page min-h-screen bg-[#F4F6F9] flex items-center justify-center p-3 sm:p-6 font-sans antialiased text-slate-800">
       
       {/* Central Split Container */}
-      <div className="max-w-4xl w-full bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col md:flex-row min-h-[500px]">
+      <div className="admin-login-card max-w-4xl w-full bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col md:flex-row">
         
         {/* Left Side: Dark Navy Branding Banner */}
-        <div className="md:w-1/2 bg-[#0B132B] p-8 sm:p-12 text-white flex flex-col justify-between relative overflow-hidden">
+        <div className="admin-login-branding md:w-1/2 bg-[#0B132B] p-5 sm:p-8 md:p-10 lg:p-12 text-white flex flex-col justify-between relative overflow-hidden">
           <div className="flex items-center gap-3 z-10">
             <div className="w-10 h-10 bg-gradient-to-tr from-red-600 to-rose-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md">
               K
@@ -72,11 +72,11 @@ export default function AdminLoginPage() {
             </div>
           </div>
 
-          <div className="space-y-4 my-8 z-10">
+          <div className="space-y-3 my-4 sm:my-8 z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-950/60 border border-red-800/60 text-[#E63946] text-xs font-bold uppercase tracking-wider">
               <Shield className="w-3.5 h-3.5" /> Restricted Console
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight">
+            <h2 className="text-xl sm:text-3xl font-black text-white leading-tight">
               Manage Events. Review Registrations. Create Opportunities.
             </h2>
             <p className="text-xs text-slate-400 leading-relaxed">
@@ -90,7 +90,7 @@ export default function AdminLoginPage() {
         </div>
 
         {/* Right Side: Clean White Login Card */}
-        <div className="md:w-1/2 p-8 sm:p-12 flex flex-col justify-center bg-white">
+        <div className="admin-login-form-panel md:w-1/2 p-5 sm:p-8 md:p-10 lg:p-12 flex flex-col justify-center bg-white">
           <div className="max-w-sm w-full mx-auto space-y-6">
             
             <div>

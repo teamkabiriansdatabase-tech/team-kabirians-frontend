@@ -154,20 +154,20 @@ nextjs-portal,
 }
 
 /* Ensure each event card has consistent height, spacing, alignment */
-.admin-portal-wrapper div.bg-white.rounded-3xl.border.overflow-hidden {
+.admin-portal-wrapper div.bg-white.rounded-3xl.border.overflow-hidden:not(.admin-login-card) {
   height: 100% !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
 }
 
-.admin-portal-wrapper div.bg-white.rounded-3xl.border.overflow-hidden > div:first-child {
+.admin-portal-wrapper div.bg-white.rounded-3xl.border.overflow-hidden:not(.admin-login-card) > div:first-child {
   flex: 1 1 auto !important;
   display: flex !important;
   flex-direction: column !important;
 }
 
-.admin-portal-wrapper div.bg-white.rounded-3xl.border.overflow-hidden > div:last-child {
+.admin-portal-wrapper div.bg-white.rounded-3xl.border.overflow-hidden:not(.admin-login-card) > div:last-child {
   margin-top: auto !important;
 }
 
@@ -195,6 +195,37 @@ nextjs-portal,
 
 .admin-portal-wrapper table {
   min-width: 600px;
+}
+
+/* Admin login split card: isolate it from the dashboard card sizing rules above. */
+.admin-portal-wrapper .admin-login-card {
+  height: auto !important;
+  min-height: min(90svh, 40rem) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+}
+
+@media screen and (min-width: 768px) {
+  .admin-portal-wrapper .admin-login-card {
+    min-height: min(80vh, 35rem) !important;
+    flex-direction: row !important;
+  }
+}
+
+@media screen and (max-width: 374px) {
+  .admin-portal-wrapper .admin-login-page {
+    padding: 0.5rem !important;
+  }
+
+  .admin-portal-wrapper .admin-login-branding,
+  .admin-portal-wrapper .admin-login-form-panel {
+    padding: 1rem !important;
+  }
+
+  .admin-portal-wrapper .admin-login-branding h2 {
+    font-size: 1.125rem !important;
+  }
 }
 
 /* 7. Modals & Dialogs Safety */

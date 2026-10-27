@@ -1,326 +1,131 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
-import api from '@/lib/api';
-import { 
-  Calendar, MapPin, Trophy, ArrowRight, 
-  FileText, Clock, AlertCircle, Layers, ChevronDown, ChevronUp, Lock
-} from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { CalendarDays, Layers3 } from 'lucide-react';
+import PublicFrame from '@/components/PublicFrame';
+import PublicPageHero from '@/components/PublicPageHero';
+import publicApi from '@/lib/publicApi';
 
-export default function PublicEventsPage() {
-  const router = useRouter();
-  const [events, setEvents] = useState<any[]>([]);
+type PublicEvent = {
+  _id: string;
+  title: string;
+  description?: string;
+  coverImageUrl?: string;
+  ruleBookPdfUrl?: string;
+  ruleBookText?: string;
+  eventDate?: string;
+  standardDeadline?: string;
+  lateFeeStartDate?: string;
+  registrationDeadline?: string;
+  status?: 'upcoming' | 'live' | 'closed' | 'ended';
+  eventType?: string;
+  categoriesCount?: number;
+  eventEnded?: boolean;
+  registrationOpen?: boolean;
+};
+
+const eventArchiveImages: Array<[string, string]> = [
+  ['Unity Cup Taekwondo Lovers 2026', '/assets/Unity Cup Taekwondo Lovers 2026/a.jpeg'],
+  ['New Jersey Taekwondo Cup 2025', '/assets/New Jersey Taekwondo Cup 2025/WhatsApp Image 2026-10-25 at 2.22.50 PM.jpeg'],
+  ['8th Heroes Cup Thailand', '/assets/8th Heroes Cup Thailand/a.jpeg'],
+  ['10th Taekwondo Lovers All Punjab Championship 2021', '/assets/10th Taekwondo Lovers All Punjab Championship 2021/WhatsApp Image 2026-10-25 at 2.45.03 PM.jpeg'],
+];
+
+function formatDate(value?: string) {
+  if (!value) return 'Not listed';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Not listed';
+  return date.toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
+}
+
+function eventButtonState(event: PublicEvent) {
+  const eventEnded = Boolean(event.eventEnded || event.status === 'ended');
+  if (eventEnded) return { label: 'EVENT ENDED', enabled: false, state: 'ended' as const };
+  if (event.status === 'closed') return { label: 'REGISTRATION CLOSED', enabled: false, state: 'closed' as const };
+  if (event.status === 'live') {
+    return event.registrationOpen !== false
+      ? { label: 'REGISTER NOW', enabled: true, state: 'open' as const }
+      : { label: 'REGISTRATION CLOSED', enabled: false, state: 'closed' as const };
+  }
+  return { label: 'COMING SOON', enabled: false, state: 'upcoming' as const };
+}
+
+export default function EventsPage() {
+  const [events, setEvents] = useState<PublicEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [expandedCategories, setExpandedCategories] = useState<{ [key: string]: boolean }>({});
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const res = await api.get('/events');
-        
-        if (!isMounted) return;
-        const data = res.data?.data || res.data || [];
-        setEvents(Array.isArray(data) ? data : []);
-      } catch (err: any) {
-        if (!isMounted) return;
-        setError('Events load karne mein masla hua. Kripya reload karein.');
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-
-    fetchEvents();
-
-    return () => {
-      isMounted = false;
-    };
+  const loadEvents = useCallback(async () => {
+    try {
+      const response = await publicApi.get('/events/public');
+      setEvents(Array.isArray(response.data?.data) ? response.data.data : []);
+      setError(false);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const toggleCategoryExpand = (eventId: string) => {
-    setExpandedCategories(prev => ({
-      ...prev,
-      [eventId]: !prev[eventId]
-    }));
-  };
+  useEffect(() => {
+    const initial = window.setTimeout(() => void loadEvents(), 0);
+    const timer = window.setInterval(() => void loadEvents(), 60_000);
+    return () => { window.clearTimeout(initial); window.clearInterval(timer); };
+  }, [loadEvents]);
 
-  const formatDate = (dateStr: string) => {
-    if (!dateStr) return 'TBA';
-    try {
-      return new Date(dateStr).toLocaleDateString('en-GB');
-    } catch {
-      return dateStr;
-    }
-  };
+  const ordered = [...events].sort((a, b) => {
+    if (a.status === 'live' && b.status !== 'live') return -1;
+    if (b.status === 'live' && a.status !== 'live') return 1;
+    const aDate = new Date(a.eventDate || 0).getTime();
+    const bDate = new Date(b.eventDate || 0).getTime();
+    return (a.eventEnded ? 1 : 0) - (b.eventEnded ? 1 : 0) || (a.eventEnded ? bDate - aDate : aDate - bDate);
+  });
 
-  const getBadgeDetails = (ev: any) => {
-    const rawStatus = String(ev.status || ev.eventStatus || '').toLowerCase().trim();
-
-    if (rawStatus === 'live' || rawStatus === 'open' || rawStatus === 'active') {
-      return {
-        label: 'LIVE NOW',
-        badgeClass: 'bg-[#DC2626] text-white',
-        isOpen: true,
-        buttonText: 'Register Athletes Now',
-      };
-    }
-
-    if (rawStatus === 'upcoming') {
-      return {
-        label: 'UPCOMING',
-        badgeClass: 'bg-[#059669] text-white',
-        isOpen: false,
-        buttonText: 'Coming Soon',
-      };
-    }
-
-    if (rawStatus === 'closed' || rawStatus === 'ended' || rawStatus === 'completed') {
-      return {
-        label: 'CLOSED',
-        badgeClass: 'bg-slate-700 text-white',
-        isOpen: false,
-        buttonText: 'Registration Closed',
-      };
-    }
-
-    return {
-      label: rawStatus ? rawStatus.toUpperCase() : 'UPCOMING',
-      badgeClass: 'bg-[#059669] text-white',
-      isOpen: false,
-      buttonText: 'Coming Soon',
-    };
-  };
-
-  const handleRegisterClick = (eventId: string, isOpen: boolean) => {
-    if (!isOpen) return;
-
-    const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-
-    if (!token || !storedUser) {
-      router.push(`/login?redirect=/portal/events/${eventId}/register`);
-      return;
-    }
-
-    try {
-      const user = JSON.parse(storedUser);
-      if (user.role === 'team_head') {
-        router.push(`/portal/events/${eventId}/register`);
-      } else {
-        router.push(`/login?redirect=/portal/events/${eventId}/register`);
-      }
-    } catch {
-      router.push(`/login?redirect=/portal/events/${eventId}/register`);
-    }
-  };
-
-  return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900 font-sans">
-      <Navbar />
-
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-8">
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#1E3A8A] text-xs font-bold uppercase tracking-wider border border-blue-100">
-            Tournament Calendar
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            Current & Upcoming Competitions
-          </h1>
-          <p className="text-sm text-slate-600 max-w-2xl">
-            Browse active tournaments. Team Heads must log in to register athletes and submit entries.
-          </p>
-        </div>
-
-        {loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-3xl border border-slate-200 p-6 space-y-4 animate-pulse">
-                <div className="h-48 bg-slate-200 rounded-2xl w-full" />
-                <div className="h-6 bg-slate-200 rounded-lg w-3/4" />
-                <div className="h-10 bg-slate-200 rounded-xl w-full mt-4" />
+  return <PublicFrame>
+    <PublicPageHero eyebrow="Team Kabirians Taekwondo" title="Events & competitions" description="Find upcoming competitions, event dates, registration details, and rules in one place." image="/assets/Unity Cup Taekwondo Lovers 2026/a.jpeg" imageAlt="Athletes at a Taekwondo competition" />
+    <section className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:py-14">
+      {loading ? <p role="status" className="rounded-xl border border-black/10 bg-white p-6 text-sm">Loading events…</p>
+        : error ? <div role="alert" className="rounded-xl border border-red-200 bg-white p-6 text-sm">Events couldn’t be loaded. Please refresh to try again.</div>
+        : ordered.length === 0 ? <div className="rounded-2xl border border-black/10 bg-white p-10 text-center"><h2 className="text-xl font-bold">No public events yet</h2><p className="mt-2 text-sm text-black/60">Published events will appear here.</p></div>
+        : <div className="grid items-stretch justify-center gap-6 sm:grid-cols-2 xl:grid-cols-3">{ordered.map((event) => {
+          const matchedImage = eventArchiveImages.find(([name]) => event.title.toLocaleLowerCase().includes(name.toLocaleLowerCase()))?.[1];
+          const imageSrc = event.coverImageUrl || matchedImage;
+          const action = eventButtonState(event);
+          const categories = event.categoriesCount === undefined ? 'Not listed' : `${event.categoriesCount} Listed`;
+          const details = [
+            ['Date', formatDate(event.eventDate)],
+            ['Standard deadline', formatDate(event.standardDeadline)],
+            ['Late fee starts', formatDate(event.lateFeeStartDate)],
+          ];
+          return <article key={event._id} className={`flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${ordered.length === 1 ? 'sm:col-span-2 sm:mx-auto sm:w-full sm:max-w-xl xl:col-span-1 xl:col-start-2' : ''}`}>
+            <div className="relative aspect-[16/9] bg-slate-100">
+              {imageSrc ? <Image src={imageSrc} alt={event.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw" className="object-cover object-[center_25%]" /> : <div className="flex h-full items-center justify-center bg-gradient-to-br from-neutral-900 to-neutral-700 text-white/40"><CalendarDays className="h-12 w-12" /></div>}
+              {event.status === 'live' && action.state === 'open' && <span className="absolute right-4 top-4 rounded-full bg-red-600 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white shadow">Live now</span>}
+              {event.status === 'live' && action.state === 'closed' && <span className="absolute right-4 top-4 rounded-full bg-slate-800/85 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white shadow">Registration closed</span>}
+              {event.eventType && <span className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-black/75 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur"><span aria-hidden="true">◉</span>{event.eventType}</span>}
+            </div>
+            <div className="flex flex-1 flex-col p-5 sm:p-6">
+              <div className="flex items-start justify-between gap-3">
+                <h2 className="min-h-14 text-xl font-black leading-snug text-slate-950">{event.title}</h2>
               </div>
-            ))}
-          </div>
-        )}
-
-        {!loading && error && (
-          <div className="p-6 bg-red-50 border border-red-200 rounded-3xl text-center space-y-3 max-w-md mx-auto">
-            <AlertCircle className="w-8 h-8 text-red-500 mx-auto" />
-            <p className="text-xs font-bold text-red-700">{error}</p>
-          </div>
-        )}
-
-        {!loading && !error && events.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.map((ev) => {
-              const eventId = ev._id || ev.id;
-              const isOnline = ev.eventType === 'online' || ev.isOnline;
-              const badge = getBadgeDetails(ev);
-              const categories = Array.isArray(ev.categories) ? ev.categories : [];
-              const isExpanded = Boolean(expandedCategories[eventId]);
-
-              return (
-                <div 
-                  key={eventId}
-                  className="bg-white rounded-3xl border border-slate-200 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between overflow-hidden"
-                >
-                  <div>
-                    <div className="relative h-48 bg-slate-900 overflow-hidden">
-                      {ev.coverImageUrl ? (
-                        <img 
-                          src={ev.coverImageUrl} 
-                          alt={ev.title} 
-                          className="w-full h-full object-cover" 
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-tr from-slate-900 to-blue-950 text-white font-black text-xl">
-                          {ev.title?.slice(0, 3)?.toUpperCase() || 'TKD'}
-                        </div>
-                      )}
-                      
-                      <div className="absolute top-4 right-4">
-                        <span className={`px-3.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider shadow-md ${badge.badgeClass}`}>
-                          {badge.label}
-                        </span>
-                      </div>
-
-                      <div className="absolute bottom-4 left-4">
-                        <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-black/75 backdrop-blur-sm text-white shadow-md flex items-center gap-1.5">
-                          <span>{isOnline ? '🌐' : '📍'}</span>
-                          <span>{isOnline ? 'ONLINE' : 'PHYSICAL'}</span>
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="p-6 space-y-4">
-                      <div>
-                        <h2 className="text-xl font-black text-slate-900 tracking-tight leading-snug">
-                          {ev.title}
-                        </h2>
-                        {ev.location && !isOnline && (
-                          <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
-                            <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                            <span>{ev.location}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {ev.ruleBookPdfUrl && (
-                        <a
-                          href={ev.ruleBookPdfUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-600 hover:text-purple-800 bg-purple-50 px-3 py-1.5 rounded-xl border border-purple-100 transition"
-                        >
-                          <FileText className="w-3.5 h-3.5" />
-                          <span>Official Rule Book (PDF)</span>
-                        </a>
-                      )}
-
-                      {categories.length > 0 && (
-                        <div className="space-y-2 pt-2 border-t border-slate-100">
-                          <button
-                            type="button"
-                            onClick={() => toggleCategoryExpand(eventId)}
-                            className="w-full flex items-center justify-between text-xs font-bold text-slate-700 hover:text-slate-900 cursor-pointer select-none"
-                          >
-                            <span className="flex items-center gap-1.5">
-                              <Layers className="w-3.5 h-3.5 text-blue-600" />
-                              <span>Categories:</span>
-                            </span>
-                            <span className="flex items-center gap-1 text-[11px] text-blue-600">
-                              <span>{categories.length} Listed</span>
-                              {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                            </span>
-                          </button>
-
-                          {isExpanded && (
-                            <div className="space-y-2 pt-1 max-h-48 overflow-y-auto pr-1">
-                              {categories.map((cat: any, cIdx: number) => {
-                                const catName = typeof cat === 'object' ? (cat.name || cat.title || `Category ${cIdx + 1}`) : String(cat);
-                                const catFee = typeof cat === 'object' ? (cat.fee || 2000) : 2000;
-                                const subCats = Array.isArray(cat?.subcategories) ? cat.subcategories : [];
-
-                                return (
-                                  <div key={cIdx} className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5">
-                                    <div className="flex justify-between items-center text-xs">
-                                      <span className="font-bold text-slate-800">{catName}</span>
-                                      <span className="font-mono font-bold text-emerald-600 text-[11px]">PKR {catFee}</span>
-                                    </div>
-                                    {subCats.length > 0 && (
-                                      <div className="flex flex-wrap gap-1">
-                                        {subCats.map((sub: any, sIdx: number) => (
-                                          <span key={sIdx} className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-white text-slate-500 border border-slate-200">
-                                            {typeof sub === 'object' ? sub.name : sub}
-                                          </span>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="space-y-1.5 text-xs text-slate-500 pt-2 border-t border-slate-100">
-                        <div className="flex justify-between">
-                          <span className="flex items-center gap-1.5">
-                            <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                            <span>Date:</span>
-                          </span>
-                          <strong className="text-slate-800 font-mono">{formatDate(ev.eventDate)}</strong>
-                        </div>
-                        
-                        {(ev.standardDeadline || ev.deadline) && (
-                          <div className="flex justify-between font-semibold text-slate-600">
-                            <span className="flex items-center gap-1.5">
-                              <Clock className="w-3.5 h-3.5" />
-                              <span>Deadline:</span>
-                            </span>
-                            <span className="font-mono">
-                              {formatDate(ev.standardDeadline || ev.deadline)}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-6 pt-0">
-                    {badge.isOpen ? (
-                      <button
-                        type="button"
-                        onClick={() => handleRegisterClick(eventId, true)}
-                        className="w-full py-3.5 bg-[#DC2626] hover:bg-red-700 text-white text-xs font-bold rounded-2xl transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
-                      >
-                        <span>{badge.buttonText}</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        disabled
-                        className="w-full py-3.5 bg-slate-200 text-slate-500 text-xs font-bold rounded-2xl flex items-center justify-center gap-2 cursor-not-allowed select-none"
-                      >
-                        <Lock className="w-3.5 h-3.5" />
-                        <span>{badge.buttonText}</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </main>
-    </div>
-  );
+              {event.description?.trim() && <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">{event.description}</p>}
+              <div className="mb-5 mt-4 flex items-center justify-between gap-3 border-b border-slate-100 pb-4 text-sm">
+                <span className="inline-flex items-center gap-2 font-semibold text-slate-600"><Layers3 className="h-4 w-4 text-red-600" />Categories</span>
+                <span className="rounded-full bg-blue-50 px-4 py-2 text-xs font-black text-blue-900">{categories}</span>
+              </div>
+              <dl className="mb-5 grid gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-4 text-sm">
+                {details.map(([label, value], index) => <div key={label} className="flex items-start justify-between gap-3"><dt className={index === 2 ? 'text-red-600' : 'text-slate-500'}>{label}:</dt><dd className={`text-right font-extrabold ${index === 2 ? 'text-red-600' : 'text-slate-900'}`}>{value}</dd></div>)}
+                {event.registrationDeadline && <div className="flex items-start justify-between gap-3"><dt className="text-slate-500">Registration closes:</dt><dd className="text-right font-bold text-slate-900">{formatDate(event.registrationDeadline)}</dd></div>}
+              </dl>
+              {event.ruleBookText?.trim() && <p className="mb-4 whitespace-pre-line text-sm leading-6 text-slate-600">{event.ruleBookText}</p>}
+              {event.ruleBookPdfUrl && <a href={event.ruleBookPdfUrl} target="_blank" rel="noreferrer" className="mb-4 inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 transition hover:border-red-300 hover:text-red-700">View event rules (PDF)</a>}
+              {action.enabled ? <Link href="/login" className="mt-auto inline-flex min-h-14 w-full items-center justify-center rounded-2xl bg-[#e5232b] px-5 py-4 text-sm font-black tracking-wide text-white shadow-sm transition hover:bg-red-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-200">REGISTER NOW</Link>
+                : <button type="button" disabled className="mt-auto min-h-14 w-full cursor-not-allowed rounded-2xl bg-slate-200 px-5 py-4 text-sm font-black tracking-wide text-slate-500" aria-disabled="true">{action.label}</button>}
+            </div>
+          </article>;
+        })}</div>}
+    </section>
+  </PublicFrame>;
 }

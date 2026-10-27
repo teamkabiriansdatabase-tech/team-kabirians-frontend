@@ -1,273 +1,75 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import PublicNavbar from '@/components/Navbar';
-import api from '@/lib/api';
-import {
-  Trophy, Medal, Search, Filter, Award, ChevronDown,
-  Calendar, MapPin
-} from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { CalendarDays, Layers3, Medal } from 'lucide-react';
+import PublicFrame from '@/components/PublicFrame';
+import publicApi from '@/lib/publicApi';
+import PublicPageHero from '@/components/PublicPageHero';
 
-export default function PublicChampionshipResultsPage() {
+type ResultEvent = {
+  _id: string;
+  title: string;
+  description?: string;
+  coverImageUrl?: string;
+  eventDate?: string;
+  eventType?: string;
+  status?: string;
+  categoriesCount: number;
+  hasPublishedResults: boolean;
+  eventEnded: boolean;
+};
+
+const eventArchiveImages: Array<[string, string]> = [
+  ['Unity Cup Taekwondo Lovers 2026', '/assets/Unity Cup Taekwondo Lovers 2026/a.jpeg'],
+  ['New Jersey Taekwondo Cup 2025', '/assets/New Jersey Taekwondo Cup 2025/WhatsApp Image 2026-10-25 at 2.22.50 PM.jpeg'],
+  ['8th Heroes Cup Thailand', '/assets/8th Heroes Cup Thailand/a.jpeg'],
+  ['10th Taekwondo Lovers All Punjab Championship 2021', '/assets/10th Taekwondo Lovers All Punjab Championship 2021/WhatsApp Image 2026-10-25 at 2.45.03 PM.jpeg'],
+];
+
+function formatDate(value?: string) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
+}
+
+export default function ResultsPage() {
+  const [events, setEvents] = useState<ResultEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [events, setEvents] = useState<any[]>([]);
-  const [selectedEventId, setSelectedEventId] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    fetchPublicEventsAndResults();
-  }, []);
-
-  const fetchPublicEventsAndResults = async () => {
+  const [error, setError] = useState(false);
+  const load = useCallback(async () => {
     try {
-      setLoading(true);
-      // Valid backend endpoint (Console ka 404 AxiosError khatam)
-      const res = await api.get('/events');
-      const data = res.data?.data || res.data?.events || res.data || [];
-      if (Array.isArray(data)) {
-        setEvents(data);
-      }
-    } catch (err) {
-      console.error('Failed to load events:', err);
+      const response = await publicApi.get('/public/results/events');
+      setEvents(Array.isArray(response.data?.data) ? response.data.data : []);
+      setError(false);
+    } catch {
+      setError(true);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    const initial = window.setTimeout(() => void load(), 0);
+    const timer = window.setInterval(() => void load(), 60_000);
+    return () => { window.clearTimeout(initial); window.clearInterval(timer); };
+  }, [load]);
 
-  const activeEvent =
-    selectedEventId !== 'all'
-      ? events.find((e) => String(e._id || e.id) === selectedEventId)
-      : null;
-
-  // Events se athletes/results extract karna
-  const extractedResults = (() => {
-    const targetEvents = activeEvent ? [activeEvent] : events;
-    const list: any[] = [];
-
-    targetEvents.forEach((ev) => {
-      const isPublic = Boolean(
-        ev.isResultsPublished || ev.resultsPublished || ev.status === 'completed'
-      );
-
-      if (Array.isArray(ev.results) && ev.results.length > 0) {
-        ev.results.forEach((r: any) => {
-          list.push({
-            ...r,
-            eventTitle: ev.title,
-            eventId: ev._id || ev.id,
-            isPublic,
-          });
-        });
-      }
-
-      if (Array.isArray(ev.categories)) {
-        ev.categories.forEach((cat: any) => {
-          if (Array.isArray(cat.athletes)) {
-            cat.athletes.forEach((ath: any) => {
-              list.push({
-                ...ath,
-                categoryName: cat.categoryName || cat.name || 'Open Division',
-                eventTitle: ev.title,
-                eventId: ev._id || ev.id,
-                isPublic,
-              });
-            });
-          }
-        });
-      }
-    });
-
-    return list;
-  })();
-
-  // Live Search filter
-  const filteredResults = extractedResults.filter((item) => {
-    const q = searchQuery.toLowerCase();
-    const nameMatch = (item.name || item.athleteName || '').toLowerCase().includes(q);
-    const teamMatch = (item.teamName || item.clubName || '').toLowerCase().includes(q);
-    const categoryMatch = (item.categoryName || item.division || '').toLowerCase().includes(q);
-    return nameMatch || teamMatch || categoryMatch;
-  });
-
-  // Category-wise grouping
-  const categoryGroupedResults = filteredResults.reduce(
-    (acc: { [cat: string]: any[] }, item: any) => {
-      const catTitle = item.categoryName || item.division || 'Open Category';
-      if (!acc[catTitle]) acc[catTitle] = [];
-      acc[catTitle].push(item);
-      return acc;
-    },
-    {}
-  );
-
-  const renderPositionBadge = (ath: any) => {
-    const rawPos = String(ath.position || ath.medal || ath.rank || '').toLowerCase();
-
-    if (rawPos.includes('1') || rawPos.includes('gold')) {
-      return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs">
-          <Medal className="w-4 h-4 text-amber-500 fill-amber-400" />
-          <span>1st Place (Gold) 🥇</span>
-        </span>
-      );
-    }
-    if (rawPos.includes('2') || rawPos.includes('silver')) {
-      return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase bg-slate-100 text-slate-800 border border-slate-300 shadow-2xs">
-          <Medal className="w-4 h-4 text-slate-400 fill-slate-300" />
-          <span>2nd Place (Silver) 🥈</span>
-        </span>
-      );
-    }
-    if (rawPos.includes('3') || rawPos.includes('bronze')) {
-      return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase bg-orange-50 text-orange-900 border border-orange-300 shadow-2xs">
-          <Medal className="w-4 h-4 text-amber-700 fill-orange-400" />
-          <span>3rd Place (Bronze) 🥉</span>
-        </span>
-      );
-    }
-    return (
-      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold uppercase bg-slate-50 text-slate-600 border border-slate-200">
-        <span>Participant</span>
-      </span>
-    );
-  };
-
-  return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 font-sans antialiased flex flex-col">
-      {/* 1. SHARED PUBLIC NAVBAR MOUNTED HERE */}
-      <PublicNavbar />
-
-      {/* 2. MAIN CONTAINER */}
-      <main className="max-w-4xl mx-auto p-6 sm:p-10 space-y-6 flex-1 w-full">
-        {/* Banner Section */}
-        <div className="text-center space-y-2 pt-2">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-black uppercase tracking-wider">
-            <Trophy className="w-3.5 h-3.5 text-amber-600" />
-            <span>Official Competition Podium</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight">
-            Championship Results
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto font-medium">
-            Verified tournament standings and category podium placements published by the Tournament Committee.
-          </p>
-        </div>
-
-        {/* Filter Controls (Search + Dropdown) */}
-        <div className="space-y-3 pt-2">
-          <div className="relative w-full">
-            <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search team, player, category..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-xs sm:text-sm outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs placeholder-slate-400 transition"
-            />
-          </div>
-
-          <div className="relative w-full">
-            <Filter className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <select
-              value={selectedEventId}
-              onChange={(e) => setSelectedEventId(e.target.value)}
-              className="w-full pl-11 pr-10 py-3 bg-white border border-slate-200 rounded-2xl text-xs sm:text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs appearance-none cursor-pointer"
-            >
-              <option value="all">All Events</option>
-              {events.map((ev) => (
-                <option key={ev._id || ev.id} value={String(ev._id || ev.id)}>
-                  {ev.title} {ev.isResultsPublished ? '✓ (Published)' : ''}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
-        </div>
-
-        {/* 3. RESULTS DISPLAY / EMPTY STATE */}
-        <div className="pt-2">
-          {loading ? (
-            <div className="h-64 flex flex-col items-center justify-center space-y-3 bg-white rounded-3xl border border-slate-200">
-              <div className="w-8 h-8 border-3 border-[#E63946] border-t-transparent rounded-full animate-spin" />
-              <p className="text-xs font-bold text-slate-400">Loading verified tournament results...</p>
-            </div>
-          ) : Object.keys(categoryGroupedResults).length === 0 ? (
-            <div className="bg-white rounded-3xl border border-slate-200 p-16 sm:p-20 text-center space-y-4 shadow-2xs flex flex-col items-center justify-center">
-              <div className="w-16 h-16 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-300">
-                <Award className="w-8 h-8" strokeWidth={1.5} />
-              </div>
-              <p className="text-xs sm:text-sm font-semibold text-slate-400">
-                No results published yet for this selection.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-6 animate-in fade-in">
-              {Object.entries(categoryGroupedResults).map(([catTitle, athletes]) => (
-                <div
-                  key={catTitle}
-                  className="bg-white rounded-3xl border border-slate-200 shadow-2xs p-6 sm:p-7 space-y-4"
-                >
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#E63946]" />
-                      <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                        {catTitle}
-                      </h2>
-                    </div>
-                    <span className="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-full border">
-                      {athletes.length} {athletes.length === 1 ? 'Competitor' : 'Competitors'}
-                    </span>
-                  </div>
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse text-xs">
-                      <thead>
-                        <tr className="border-b border-slate-200 bg-slate-50/80 text-[10px] font-black uppercase text-slate-400 tracking-wider">
-                          <th className="py-3.5 pl-4 pr-2 w-12">#</th>
-                          <th className="py-3.5 px-4">Athlete / Player</th>
-                          <th className="py-3.5 px-4">Team / Club</th>
-                          <th className="py-3.5 px-4">Tournament</th>
-                          <th className="py-3.5 pr-4 text-right">Podium Placement</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 text-slate-700">
-                        {athletes.map((ath: any, idx: number) => (
-                          <tr key={ath._id || idx} className="hover:bg-slate-50/70 transition">
-                            <td className="py-3.5 pl-4 pr-2 font-bold text-slate-400">{idx + 1}</td>
-                            <td className="py-3.5 px-4 font-black text-slate-900">
-                              <div className="text-xs sm:text-sm">{ath.name || ath.athleteName}</div>
-                              {ath.belt && (
-                                <span className="text-[10px] text-blue-700 font-bold uppercase">
-                                  {ath.belt} Belt
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-3.5 px-4 font-semibold text-slate-600">
-                              {ath.teamName || ath.clubName || 'Independent'}
-                            </td>
-                            <td className="py-3.5 px-4 font-medium text-slate-500 text-[11px]">
-                              {ath.eventTitle}
-                            </td>
-                            <td className="py-3.5 pr-4 text-right">
-                              {renderPositionBadge(ath)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </main>
-
-      <footer className="h-16 bg-white border-t border-slate-200 flex items-center justify-center text-xs text-slate-400 font-medium mt-auto">
-        &copy; {new Date().getFullYear()} KABIRIANS EVENT SYSTEM &bull; Official Results Board
-      </footer>
-    </div>
-  );
+  return <PublicFrame>
+    <PublicPageHero eyebrow="Competition record" title="Results & achievements" description="Explore published standings and celebrate the athletes who have represented Team Kabirians." image="/assets/Welcome Ceremony after winning Three Golds Medal from United States Of America/WhatsApp Image 2026-10-25 at 2.24.18 .jpeg" imageAlt="Team celebrating an international Taekwondo achievement" />
+    <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 sm:py-10 lg:py-14">
+      {loading ? <p role="status" className="rounded-xl border border-black/10 bg-white p-6 text-sm">Loading results…</p>
+        : error ? <div role="alert" className="rounded-xl border border-red-200 bg-white p-6 text-sm">Results couldn’t be loaded. Please refresh to try again.</div>
+        : events.length === 0 ? <div className="rounded-2xl border border-black/10 bg-white p-10 text-center"><Medal className="mx-auto h-9 w-9 text-red-600" /><h2 className="mt-4 text-xl font-bold">No results to display yet</h2><p className="mt-2 text-sm text-black/60">Completed events will appear here when the results list is available.</p></div>
+        : <div className="grid min-w-0 grid-cols-1 items-stretch gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">{events.map((event) => {
+          const archiveImage = eventArchiveImages.find(([name]) => event.title.toLocaleLowerCase().includes(name.toLocaleLowerCase()))?.[1];
+          const imageSrc = event.coverImageUrl || archiveImage;
+          const date = formatDate(event.eventDate);
+          return <article key={event._id} className="flex min-w-0 h-full flex-col overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
+            <div className="relative aspect-[16/9] bg-slate-100">{imageSrc ? <Image src={imageSrc} alt={event.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw" className="object-cover object-[center_25%]" /> : <div className="flex h-full items-center justify-center bg-gradient-to-br from-neutral-900 to-neutral-700 text-white/40"><Medal className="h-12 w-12" /></div>}{event.eventType && <span className="absolute bottom-4 left-4 rounded-full bg-black/75 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-white">{event.eventType}</span>}</div>
+            <div className="flex flex-1 flex-col p-4 sm:p-6"><p className="text-[10px] font-bold uppercase tracking-[.18em] text-red-600">Competition results</p><h2 className="mt-2 min-h-14 break-words text-xl font-black leading-snug text-slate-950">{event.title}</h2>{date && <p className="mt-3 flex items-center gap-2 text-sm text-slate-600"><CalendarDays className="h-4 w-4 shrink-0 text-red-600" />{date}</p>}<div className="mb-5 mt-4 flex flex-col items-start gap-2 border-y border-slate-100 py-4 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-3"><span className="inline-flex min-w-0 items-center gap-2 font-semibold text-slate-600"><Layers3 className="h-4 w-4 shrink-0 text-red-600" /><span>Published categories</span></span><span className="rounded-full bg-blue-50 px-4 py-2 text-xs font-black text-blue-900">{event.categoriesCount} Listed</span></div>{event.hasPublishedResults ? <Link href={`/results/${event._id}`} className="mt-auto inline-flex min-h-14 w-full items-center justify-center whitespace-nowrap rounded-2xl bg-[#e5232b] px-4 py-4 text-sm font-black tracking-wide text-white shadow-sm transition hover:bg-red-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-200">VIEW RESULTS <span className="ml-2" aria-hidden="true">→</span></Link> : <button type="button" disabled aria-disabled="true" className="mt-auto min-h-14 w-full cursor-not-allowed rounded-2xl bg-slate-200 px-4 py-4 text-sm font-black tracking-wide text-slate-500">RESULTS NOT PUBLISHED</button>}</div>
+          </article>;
+        })}</div>}
+    </section>
+  </PublicFrame>;
 }

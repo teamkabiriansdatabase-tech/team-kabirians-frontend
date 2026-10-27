@@ -1,9 +1,38 @@
-import Navbar from '@/components/Navbar';
-export default function Page() {
-  return (
-    <div>
-      <Navbar />
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center text-slate-500">Coming Soon</div>
-    </div>
-  );
+import Image from 'next/image';
+import Link from 'next/link';
+import { ArrowRight, Award, MapPin, Sparkles } from 'lucide-react';
+import PublicFrame from '@/components/PublicFrame';
+
+const values = [
+  ['Discipline', 'Build focus, consistency, and strong habits through practice.'],
+  ['Respect', 'Treat instructors, teammates, opponents, and the art with respect.'],
+  ['Confidence', 'Help students grow through steady effort and encouragement.'],
+  ['Opportunity', 'Make training accessible to young people from rural and under-served communities.'],
+  ['Sportsmanship', 'Compete fairly and support one another on and off the mat.'],
+];
+
+const milestones = [
+  ['1995', 'Team Kabirians was founded in Kabirwala by Master Muhammad Asif Ali Nadir.'],
+  ['2022', 'Talent Hunt Inter-District Taekwondo Lovers Championship.'],
+  ['2024', 'National Taekwondo Lovers Championship and the first Online International Championship.'],
+  ['2025–2026', 'Unity Cup championships and the second and third Online International Championships.'],
+];
+
+export default function AboutPage() {
+  return <PublicFrame>
+    <section className="relative overflow-hidden bg-[#111214] text-white">
+      <div className="pointer-events-none absolute -right-32 -top-40 h-[34rem] w-[34rem] rounded-full border border-white/10" />
+      <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-14 sm:px-8 sm:py-20 lg:grid-cols-[1.05fr_.95fr] lg:py-24">
+        <div className="relative z-10"><p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[.06] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.2em] text-red-300"><Sparkles className="h-3.5 w-3.5" /> About the team</p><h1 className="mt-5 text-4xl font-black leading-[1.04] tracking-tight sm:text-6xl">Champions on<br /><span className="text-red-500">and off the mat.</span></h1><p className="mt-6 max-w-xl text-base leading-7 text-white/70">Team Kabirians Taekwondo is a Kabirwala-based martial arts community founded by Master Muhammad Asif Ali Nadir. Its notes describe a focus on Taekwondo, character-building, and creating opportunities for young athletes. Team Kabirians is proudly associated with Pakistan Taekwondo Lovers.</p><Link href="/team" className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#d51e2b] px-5 py-3 text-sm font-bold text-white transition hover:bg-red-700">Meet the team <ArrowRight className="h-4 w-4" /></Link></div>
+        <div className="relative mx-auto w-full max-w-xl pb-8 pr-5 sm:pb-10 sm:pr-8"><div className="absolute -inset-3 translate-x-5 translate-y-5 rounded-[1.75rem] border border-red-500/40" /><div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-white/10"><Image src="/assets/Team Kabirians Since 1992/WhatsApp Image 2026-10-25 at 2.30.42 P.jpeg" alt="Team Kabirians athletes together" fill sizes="(max-width: 1024px) 100vw, 45vw" className="object-cover" /></div><div className="absolute -bottom-1 left-0 flex items-center gap-3 rounded-2xl border border-white/10 bg-[#1c1d20] px-4 py-3 shadow-xl sm:left-4"><MapPin className="h-5 w-5 text-red-400" /><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-white/50">Rooted in</p><p className="text-sm font-bold">Kabirwala, Pakistan</p></div></div></div>
+      </div>
+    </section>
+    <section className="border-b border-black/5 bg-[#f1efeb]"><div className="mx-auto grid max-w-7xl gap-3 px-5 py-5 sm:grid-cols-3 sm:px-8"><div className="flex items-center gap-3 rounded-xl bg-white/70 px-4 py-3"><Award className="h-5 w-5 text-[#d51e2b]" /><p><span className="block text-sm font-black">Since 1995</span><span className="text-xs text-black/55">Building a Taekwondo community</span></p></div><div className="flex items-center gap-3 rounded-xl bg-white/70 px-4 py-3"><MapPin className="h-5 w-5 text-[#d51e2b]" /><p><span className="block text-sm font-black">Kabirwala</span><span className="text-xs text-black/55">Local roots, wider connections</span></p></div><div className="flex items-center gap-3 rounded-xl bg-white/70 px-4 py-3"><Sparkles className="h-5 w-5 text-[#d51e2b]" /><p><span className="block text-sm font-black">Taekwondo for all</span><span className="text-xs text-black/55">Discipline, confidence, opportunity</span></p></div></div></section>
+    <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:py-20">
+      <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr]"><div><p className="text-xs font-bold uppercase tracking-[.2em] text-red-600">Our story</p><h2 className="mt-3 text-3xl font-black">A Taekwondo community from Kabirwala</h2><p className="mt-4 text-sm leading-7 text-black/60">The team notes describe a grassroots effort to make training and competition more accessible to local youth, including students from rural and under-served backgrounds.</p></div><div className="space-y-5 text-sm leading-7 text-black/65"><div className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6"><p className="text-xs font-bold uppercase tracking-[.18em] text-red-600">Mission</p><p className="mt-2 text-base font-semibold leading-7 text-slate-900">“To promote Taekwondo in underdeveloped areas, discover hidden talent, and empower the youth of Kabirwala with strength, discipline, and vision.”</p></div><div className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6"><p className="text-xs font-bold uppercase tracking-[.18em] text-red-600">Master Asif’s vision</p><p className="mt-2 text-base font-semibold leading-7 text-slate-900">“Taekwondo is not just a sport — it’s a discipline, a mindset, and a lifestyle. I aim to create champions of life, not just the mat.”</p></div><div className="flex flex-wrap items-center gap-3 rounded-2xl border border-black/10 bg-white p-4 sm:gap-4 sm:p-5"><Image src="/assets/team kabirians.png" alt="Team Kabirians logo" width={56} height={56} className="h-14 w-14 object-contain" /><span className="text-xs font-bold uppercase tracking-wide text-black/45">Proudly associated with</span><Image src="/assets/logo tlp.png" alt="Pakistan Taekwondo Lovers logo" width={56} height={56} className="h-14 w-14 object-contain" /><strong className="text-sm">Pakistan Taekwondo Lovers</strong></div></div></div>
+    </section>
+    <section className="bg-white py-16 lg:py-20"><div className="mx-auto max-w-7xl px-5 sm:px-8"><p className="text-xs font-bold uppercase tracking-[.2em] text-red-600">What guides us</p><h2 className="mt-3 text-3xl font-black">Values on and off the mat</h2><div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">{values.map(([title, text]) => <article key={title} className="rounded-2xl border border-black/10 p-5"><h3 className="font-extrabold">{title}</h3><p className="mt-2 text-sm leading-6 text-black/60">{text}</p></article>)}</div></div></section>
+    <section className="bg-[#111214] text-white"><div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:py-16"><div className="grid gap-8 lg:grid-cols-[.7fr_1.3fr]"><div><p className="text-xs font-bold uppercase tracking-[.2em] text-red-400">Selected milestones</p><h2 className="mt-3 text-3xl font-black">Growing through<br />every competition</h2><p className="mt-4 max-w-sm text-sm leading-6 text-white/60">A few moments from the team’s journey, from local talent development to international online events.</p></div><div className="grid gap-3 sm:grid-cols-2">{milestones.map(([year, text], i) => <article key={year} className="relative rounded-2xl border border-white/10 bg-white/[.045] p-5 transition hover:bg-white/[.08]"><span className="text-[10px] font-black uppercase tracking-[.18em] text-red-400">Chapter 0{i + 1}</span><p className="mt-2 text-2xl font-black">{year}</p><p className="mt-2 text-sm leading-6 text-white/65">{text}</p></article>)}</div></div></div></section>
+    <section className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-5 py-14 sm:px-8"><div><h2 className="text-2xl font-black">Explore the public archive</h2><p className="mt-2 text-sm text-black/60">Browse photographs and follow published events and results.</p></div><Link href="/portfolio" className="rounded-full bg-[#d51e2b] px-6 py-3 text-sm font-bold text-white hover:bg-red-700">View portfolio</Link></section>
+  </PublicFrame>;
 }
