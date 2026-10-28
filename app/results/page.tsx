@@ -56,7 +56,7 @@ export default function ResultsPage() {
   }, [load]);
 
   return <PublicFrame>
-    <PublicPageHero eyebrow="Competition record" title="Results & achievements" description="Explore published standings and celebrate the athletes who have represented Team Kabirians." image="/assets/Welcome Ceremony after winning Three Golds Medal from United States Of America/WhatsApp Image 2026-10-25 at 2.24.18 .jpeg" imageAlt="Team celebrating an international Taekwondo achievement" />
+    <PublicPageHero eyebrow="Competition record" title="Results & achievements" description="Explore published standings and celebrate the athletes who have represented Team Kabirians." image="/assets/Welcome Ceremony after winning Three Golds Medal from United States Of America/WhatsApp Image 2026-10-25 at 2.24.18 PM.jpeg" imageAlt="Team celebrating an international Taekwondo achievement" />
     <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 sm:py-10 lg:py-14">
       {loading ? <p role="status" className="rounded-xl border border-black/10 bg-white p-6 text-sm">Loading results…</p>
         : error ? <div role="alert" className="rounded-xl border border-red-200 bg-white p-6 text-sm">Results couldn’t be loaded. Please refresh to try again.</div>
